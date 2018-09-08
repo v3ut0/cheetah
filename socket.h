@@ -6,23 +6,29 @@
 #include "scheduler.h"
 
 struct IntStr {
-    long int_val;
-    bool is_int;
-    std::string str_val;
+  long int_val;
+  bool is_int;
+  std::string str_val;
 };
 
 class Socket {
-private:
+  private:
     int id;
     std::string buffer;
     std::vector<std::string> elems;
     Scheduler *scheduler;
-public:
+  public:
     Socket(int id);
     void onConnected(Scheduler *scheduler);
     void onReceived(char *buffer, int len);
     void onDisconnected();
-    static long emit(int to, long opcode, std::string queue_name, long job_id, std::string data);
+    static long emit(
+      int to,
+      long opcode,
+      std::string queue_name,
+      long job_id,
+      std::string data
+    );
     // client -> server
     static const long BE_A_WORKER = 0;
     static const long BE_A_JOB = 1;
@@ -35,4 +41,3 @@ public:
 };
 
 #endif //CHEETAH_SOCKET_H
-
