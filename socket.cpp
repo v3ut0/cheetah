@@ -7,21 +7,6 @@ Socket::Socket(int id) {
     this->buffer = "";
 }
 
-std::list<long> Socket::decompose_elems(std::string str, std::string separator, int max_size) {
-    std::list<long> elem_sizes;
-    long str_len = str.length();
-    long sep_len = separator.length();
-    long prev_index = 0;
-    for (int i = 0; i < str_len - sep_len + 1; i += 1) {
-        if (str.substr(i, sep_len).compare(separator) == 0) {
-            elem_sizes.push_back(i + sep_len - prev_index);
-            prev_index = i + sep_len;
-            if (elem_sizes.size() == max_size) break;
-        }
-    }
-    return elem_sizes;
-}
-
 long Socket::emit(int to, long opcode, std::string queue_name, long job_id, std::string data) {
     std::string int_prefix = ":";
     std::string str_prefix = "+";
@@ -40,27 +25,21 @@ void Socket::onConnected(Scheduler *scheduler) {
 
 void Socket::onReceived(char *buffer, int len) {
     this->buffer += std::string(buffer, buffer + len);
-    std::list<long> elem_sizes = Socket::decompose_elems(this->buffer, "\r\n", 4);
-    while (elem_sizes.size() >= 4) {
-        std::regex int_regex = std::regex("[0-9]+");
-        std::vector<long> int_values;
-        std::vector<std::string> str_values;
-        for (auto elem_size : elem_sizes) {
-            std::string content = this->buffer.substr(1, elem_size - 3);
-            if (this->buffer[0] == ':' && std::regex_match(content, int_regex)) {
-                int_values.push_back(std::stol(content));
-            }
-            if (this->buffer[0] == '+') {
-                str_values.push_back(content);
-            }
-            this->buffer = this->buffer.substr(elem_size, this->buffer.length() - elem_size);
-        }
-        // VALIDATE
-        if (int_values.size() >= 2 && str_values.size() >= 2) {
-            long opcode = int_values[0];
-            long job_id = int_values[1];
-            std::string queue_name = str_values[0];
-            std::string job_data = str_values[1];
+    std::size_t sep_index = this->buffer.find("\r\n");
+    while (sep_index != std::string::npos) {
+        std::string data = this->buffer.substr(0, sep_index + 2);
+        std::string content = data.substr(1, data.length() - 3);
+        this->elems.push_back(content);
+        this->buffer = this->buffer.substr(sep_index + 2, this->buffer.length() - data.length());
+        sep_index = this->buffer.find("\r\n");
+    }
+    std::regex int_regex = std::regex("[0-9]+");
+    while (this->elems.size() >= 4) {
+        if (std::regex_match(this->elems[0], int_regex) && std::regex_match(this->elems[2], int_regex)) {
+            long opcode = std::stol(this->elems[0]);
+            long job_id = std::stol(this->elems[2]);
+            std::string queue_name = this->elems[1];
+            std::string job_data = this->elems[3];
             switch (opcode) {
                 case Socket::BE_A_WORKER:
                     scheduler->be_a_worker(this->id, queue_name);
@@ -78,9 +57,11 @@ void Socket::onReceived(char *buffer, int len) {
                     scheduler->process_job(queue_name);
                     break;
             }
+            
+        };
+        for (int i = 0; i < 4; i++) {
+            this->elems.erase(this->elems.begin());
         }
-        // Next packet
-        elem_sizes = Socket::decompose_elems(this->buffer, "\r\n", 4);
     }
 }
 

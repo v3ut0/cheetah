@@ -17,10 +17,6 @@
 #define TRUE             1
 #define FALSE            0
 
-/*
- * TODO:
- * - remove timeout
- */
 void Server::serve () {
     int    i, rc, on = 1;
     int    listen_sd, max_sd, new_sd;
@@ -45,11 +41,12 @@ void Server::serve () {
         perror("- socket() failed\n");
         exit(-1);
     }
-    
+    /** Pevent SIGPIPE **/
+    signal(SIGPIPE, SIG_IGN);
     /*************************************************************/
     /* Allow socket descriptor to be reuseable                   */
     /*************************************************************/
-    rc = setsockopt(listen_sd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    rc = setsockopt(listen_sd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
         perror("- setsockopt() failed\n");
         close(listen_sd);

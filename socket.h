@@ -2,6 +2,7 @@
 #define CHEETAH_SOCKET_H
 
 #include <set>
+#include <vector>
 #include "scheduler.h"
 
 struct IntStr {
@@ -14,6 +15,7 @@ class Socket {
 private:
     int id;
     std::string buffer;
+    std::vector<std::string> elems;
     Scheduler *scheduler;
 public:
     Socket(int id);
@@ -21,7 +23,6 @@ public:
     void onReceived(char *buffer, int len);
     void onDisconnected();
     static long emit(int to, long opcode, std::string queue_name, long job_id, std::string data);
-    static std::list<long> decompose_elems(std::string str, std::string separator, int max_size);
     // client -> server
     static const long BE_A_WORKER = 0;
     static const long BE_A_JOB = 1;
