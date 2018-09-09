@@ -6,7 +6,7 @@
 
 class Server {
   public:
-    static void serve();
+    static void serve(int port_number);
 };
 
 #endif //CHEETAH_SERVER_H

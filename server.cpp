@@ -12,12 +12,10 @@
 #include "server.h"
 #include "socket.h"
 
-#define SERVER_PORT  12345
-
 #define TRUE             1
 #define FALSE            0
 
-void Server::serve () {
+void Server::serve (int port_number) {
   int    i, rc, on = 1;
   int    listen_sd, max_sd, new_sd;
   int    desc_ready, end_server = FALSE;
@@ -71,7 +69,7 @@ void Server::serve () {
   memset(&addr, 0, sizeof(addr));
   addr.sin_family      = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port        = htons(SERVER_PORT);
+  addr.sin_port        = htons(port_number);
   rc = bind(listen_sd, (struct sockaddr *)&addr, sizeof(addr));
   if (rc < 0) {
     perror("- bind() failed\n");
@@ -88,6 +86,7 @@ void Server::serve () {
     close(listen_sd);
     exit(-1);
   }
+  printf("- server started at port %d\n", port_number);
 
   /*************************************************************/
   /* Initialize the master fd_set                              */
