@@ -4,6 +4,8 @@ project (cheetah)
 set (VERSION_MAJOR 0)
 set (VERSION_MINOR 1)
 set (PORT_NUMBER 1991)
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # add config header
 configure_file (
   "${PROJECT_SOURCE_DIR}/config.h.in"

@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include "server.h"
 #include "socket.h"
 
@@ -23,7 +24,7 @@ void Server::serve (int port_number) {
   char   buffer[1024];
   struct sockaddr_in   addr;
   struct timeval       timeout;
-  struct fd_set        master_set, working_set;
+  fd_set        master_set, working_set;
 
   /***********************************************************/
   /* Manage connections                                      */
