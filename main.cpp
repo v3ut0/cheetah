@@ -26,7 +26,7 @@ std::vector<std::string> get_cmds(int argc, char *argv[], std::vector<std::strin
 }
 
 int main(int argc, char *argv[]) {
-  int config_port = PORT_NUMBER;
+  int config_port = 1991;
   std::vector<std::string> helps;
   helps.push_back("--help");
   helps.push_back("-h");
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   }
   std::vector<std::string> v = get_cmds(argc, argv, versions);
   if (v.size() > 0) {
-    printf("v%d.%d\n", VERSION_MAJOR, VERSION_MINOR);
+    printf("v%d.%d\n", 0, 1);
     return 0;
   }
   std::vector<std::string> p = get_cmds(argc, argv, ports);
