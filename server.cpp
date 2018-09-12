@@ -98,4 +98,7 @@ void Server::serve(int port_number) {
       }
     }
   }
+  for (int i = 0; i < max_sd; i += 1) {
+    if (FD_ISSET(i, &master_set)) close(i);
+  }
 }
